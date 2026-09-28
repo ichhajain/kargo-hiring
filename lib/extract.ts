@@ -23,7 +23,8 @@ function clean(s: string) {
 
 const EMAIL_RE = /[A-Za-z0-9._%+\\-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
 const PHONE_RE = /(\+?\d{1,3}[\s-]?)?(\(?\d{2,5}\)?[\s-]?){2,4}\d{3,5}/g;
-const URL_RE = /\b(?:https?:\/\/)?(?:www\.)?(?:linkedin\.com|github\.com|twitter\.com|x\.com)\/[^\s|·,]+/gi;
+// Any web address (portfolio links often contain the person's name), plus bare profile paths like linkedin.com/in/...
+const URL_RE = /\b(?:https?:\/\/|www\.)[^\s|·,<>]+|\b(?:linkedin\.com|github\.com|twitter\.com|x\.com|behance\.net|notion\.site|medium\.com)\/[^\s|·,<>]*/gi;
 
 export type PII = { fullName: string; email: string | null; phone: string | null };
 

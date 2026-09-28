@@ -45,7 +45,7 @@ export default function Dashboard() {
   const [tab, setTab] = useState<Role>("PM");
   const [filter, setFilter] = useState<"all" | "pending" | "invite" | "reject">("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [uploadRole, setUploadRole] = useState<Role>("PM");
+  const [uploadRole, setUploadRole] = useState<Role | "AUTO">("PM");
   const [queue, setQueue] = useState<QueueItem[]>([]);
   const [dragging, setDragging] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -167,8 +167,8 @@ export default function Dashboard() {
           </div>
           <div className="upload-controls">
             <div className="seg" role="radiogroup" aria-label="Applied role">
-              {(["PM", "SPM"] as Role[]).map((r) => (
-                <button key={r} role="radio" aria-checked={uploadRole === r} className={uploadRole === r ? "on" : ""} onClick={() => setUploadRole(r)}>{roleName(r)}</button>
+              {(["PM", "SPM", "AUTO"] as const).map((r) => (
+                <button key={r} role="radio" aria-checked={uploadRole === r} className={uploadRole === r ? "on" : ""} onClick={() => setUploadRole(r)}>{r === "AUTO" ? "Not sure" : roleName(r)}</button>
               ))}
             </div>
             <button className="btn primary" onClick={() => fileInput.current?.click()}>Upload CVs</button>
@@ -176,7 +176,7 @@ export default function Dashboard() {
               onChange={(e) => { processFiles(Array.from(e.target.files || [])); e.target.value = ""; }} />
           </div>
         </div>
-        <div className={`dropzone ${dragging ? "over" : ""}`}>Drop PDF / DOCX files here, applied role: <b>{roleName(uploadRole)}</b></div>
+        <div className={`dropzone ${dragging ? "over" : ""}`}>Drop PDF / DOCX files here, applied role: <b>{uploadRole === "AUTO" ? "not sure (filed under best-fit role)" : roleName(uploadRole)}</b></div>
         {queue.length > 0 && (
           <div className="queue">
             <div className="queue-head">

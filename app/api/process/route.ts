@@ -11,9 +11,12 @@ export const maxDuration = 60;
 export async function POST(req: Request) {
   const form = await req.formData();
   const file = form.get("file");
-  const role = form.get("role") as Role;
+  const requested = String(form.get("role") || "");
+  // "AUTO": applied role unknown, so file the candidate under whichever rubric they fit better.
+  const auto = requested === "AUTO";
+  let role = (auto ? "PM" : requested) as Role;
   if (!(file instanceof File)) return NextResponse.json({ error: "No file" }, { status: 400 });
-  if (role !== "PM" && role !== "SPM") return NextResponse.json({ error: "Role must be PM or SPM" }, { status: 400 });
+  if (role !== "PM" && role !== "SPM") return NextResponse.json({ error: "Role must be PM, SPM or AUTO" }, { status: 400 });
 
   let supabase;
   try { supabase = db(); } catch (e) { return NextResponse.json({ error: (e as Error).message }, { status: 500 }); }
@@ -33,9 +36,11 @@ export async function POST(req: Request) {
     const ai = await scoreCV(redacted, role);
     const pmScore = weightedTotal("PM", ai.pm_scores);
     const spmScore = weightedTotal("SPM", ai.spm_scores);
+    if (auto) role = pmScore >= spmScore ? "PM" : "SPM";
     const applied = role === "PM" ? pmScore : spmScore;
 
     const update = {
+      applied_role: role,
       full_name: pii.fullName,
       email: pii.email,
       phone: pii.phone,

@@ -1,15 +1,15 @@
 // Output step: send via Resend, only when the founder clicks Send.
 export async function sendEmail(to: string, subject: string, body: string) {
-  const key = process.env.RESEND_API_KEY;
+  const key = process.env.RESEND_API_KEY?.trim();
   if (!key) throw new Error("RESEND_API_KEY is not set");
-  const from = process.env.RESEND_FROM || "Kargo Hiring <onboarding@resend.dev>";
+  const from = process.env.RESEND_FROM?.trim() || "Kargo Hiring <onboarding@resend.dev>";
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       from,
-      to: [process.env.EMAIL_OVERRIDE_TO || to],
-      reply_to: process.env.REPLY_TO || undefined,
+      to: [process.env.EMAIL_OVERRIDE_TO?.trim() || to],
+      reply_to: process.env.REPLY_TO?.trim() || undefined,
       subject,
       text: body,
     }),

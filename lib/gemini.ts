@@ -96,9 +96,9 @@ EMAILS: write both, signed "Arjun Mehta, Founder, Kargo". Start with "Hi {{first
 - rejection_email: respectful, honest that the role needs a different profile right now, name one genuine strength, thank them for their patience. No false promises.`;
 
 export async function scoreCV(redactedCV: string, appliedRole: Role): Promise<AIResult> {
-  const key = process.env.GEMINI_API_KEY;
+  const key = process.env.GEMINI_API_KEY?.trim();
   if (!key) throw new Error("GEMINI_API_KEY is not set");
-  const model = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+  const model = process.env.GEMINI_MODEL?.trim() || "gemini-3.8-flash";
 
   const body = {
     systemInstruction: { parts: [{ text: SYSTEM }] },
@@ -120,7 +120,7 @@ export async function scoreCV(redactedCV: string, appliedRole: Role): Promise<AI
   };
 
   // Try the primary model, then a fallback if Google reports overload (429/5xx).
-  const models = [model, process.env.GEMINI_FALLBACK_MODEL || "gemini-3.5-flash"].filter((m, i, a) => a.indexOf(m) === i);
+  const models = [model, process.env.GEMINI_FALLBACK_MODEL?.trim() || "gemini-3.5-flash"].filter((m, i, a) => a.indexOf(m) === i);
   let lastErr = "";
   for (const m of models) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`;
